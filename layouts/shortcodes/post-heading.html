@@ -1,0 +1,7 @@
+{{- $title := .Get "title" -}}
+{{- $date := .Get "date" -}}
+{{- $url := .Get "url" -}}
+<a class="post-heading" href="{{ $url }}">
+  {{- $title -}}
+  {{- if $date }} <span class="post-date-inline">{{ $date }}</span>{{ end -}}
+</a>

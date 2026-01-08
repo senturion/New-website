@@ -1,0 +1,139 @@
+<div class="header-container">
+  <nav>{{- partial "nav.html" . -}}</nav>
+  <button id="theme-80s-toggle" aria-label="Toggle 80s mode" title="Toggle 80s mode">
+    <i class="bi bi-sunglasses" aria-hidden="true"></i>
+  </button>
+  <button id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark/light mode">
+    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+</div>
+<!-- Floating shapes (80s mode) -->
+<div class="maxi-shapes" aria-hidden="true">
+  <span class="shape shape-circle shape-c1"></span>
+  <span class="shape shape-circle shape-c2"></span>
+  <span class="shape shape-circle shape-c3"></span>
+  <span class="shape shape-circle shape-c4"></span>
+  <span class="shape shape-circle shape-c5"></span>
+  <span class="shape shape-tri shape-t1"></span>
+  <span class="shape shape-tri shape-t2"></span>
+  <span class="shape shape-tri shape-t3"></span>
+  <span class="shape shape-tri shape-t4"></span>
+  <span class="shape shape-tri shape-t5"></span>
+  <span class="shape shape-zig shape-z1"></span>
+  <span class="shape shape-zig shape-z2"></span>
+  <span class="shape shape-zig shape-z3"></span>
+  <span class="shape shape-zig shape-z4"></span>
+  <span class="shape shape-zig shape-z5"></span>
+  <span class="shape shape-confetti shape-confetti-1"></span>
+  <span class="shape shape-confetti shape-confetti-2"></span>
+  <span class="shape shape-confetti shape-confetti-3"></span>
+  <span class="shape shape-confetti shape-confetti-4"></span>
+  <span class="shape shape-squiggle shape-squiggle-1"></span>
+  <span class="shape shape-squiggle shape-squiggle-2"></span>
+  <span class="shape shape-squiggle shape-squiggle-3"></span>
+</div>
+
+<!-- Synthwave horizon scene (80s mode) -->
+<div class="synthwave-scene" aria-hidden="true">
+  <div class="horizon-glow"></div>
+  <div class="retro-sun"></div>
+  <div class="palm-tree palm-tree-left">
+    <div class="palm-frond"></div>
+    <div class="palm-frond"></div>
+    <div class="palm-frond"></div>
+    <div class="palm-frond"></div>
+    <div class="palm-frond"></div>
+    <div class="palm-trunk"></div>
+  </div>
+  <div class="palm-tree palm-tree-right">
+    <div class="palm-frond"></div>
+    <div class="palm-frond"></div>
+    <div class="palm-frond"></div>
+    <div class="palm-frond"></div>
+    <div class="palm-frond"></div>
+    <div class="palm-trunk"></div>
+  </div>
+  <div class="neon-grid"></div>
+</div>
+
+<!-- Stars (80s mode) -->
+<div class="stars" aria-hidden="true"></div>
+
+<!-- CRT scanlines overlay (80s mode) -->
+<div class="crt-overlay" aria-hidden="true"></div>
+
+<!-- VHS glitch effect (80s mode) -->
+<div class="vhs-glitch" aria-hidden="true"></div>
+
+<!-- Cursor trail container (80s mode) -->
+<div class="cursor-trail-container" aria-hidden="true"></div>
+
+<!-- Synthwave Tape Deck Player -->
+<div class="tape-deck" aria-hidden="true">
+  <div class="tape-window">
+    <div class="tape-vu-meter">
+      <span class="vu-bar"></span>
+      <span class="vu-bar"></span>
+      <span class="vu-bar"></span>
+      <span class="vu-bar"></span>
+      <span class="vu-bar"></span>
+      <span class="vu-bar"></span>
+      <span class="vu-bar"></span>
+      <span class="vu-bar"></span>
+    </div>
+    <span class="tape-reel reel-left"></span>
+    <span class="tape-reel reel-right"></span>
+    <span class="tape-tape"></span>
+  </div>
+  <div class="tape-track-info">
+    <span class="track-name">NIGHTWAVE PLAZA</span>
+  </div>
+  <div class="tape-controls">
+    <button class="tape-button prev-btn" type="button" aria-label="Previous track">
+      <i class="bi bi-skip-backward-fill"></i>
+    </button>
+    <button class="tape-button play-btn" type="button" aria-label="Play/Pause">
+      <i class="bi bi-play-fill play-icon"></i>
+      <i class="bi bi-pause-fill pause-icon" style="display:none;"></i>
+    </button>
+    <button class="tape-button next-btn" type="button" aria-label="Next track">
+      <i class="bi bi-skip-forward-fill"></i>
+    </button>
+  </div>
+  <div class="tape-volume">
+    <span class="tape-volume-label">VOL</span>
+    <input type="range" class="tape-volume-slider" min="0" max="100" value="70" aria-label="Volume">
+  </div>
+  <audio id="tape-audio" preload="none"></audio>
+</div>
+{{ if .IsHome }}
+  <div class="about">
+    {{- $aboutPhotoLight := .Site.Params.about_photo_light | default "/images/logo-placeholder.svg" -}}
+    {{- $aboutPhotoDark := .Site.Params.about_photo_dark | default $aboutPhotoLight -}}
+    <div class="about-photo" role="img" aria-label="{{ .Site.Title }} logo" style="--about-photo-light: url('{{ $aboutPhotoLight }}'); --about-photo-dark: url('{{ $aboutPhotoDark }}');"></div>
+    <div class="about-inner">
+      {{ with .Site.Params.about }}
+        {{ range . }}
+          <p>{{ . }}</p>
+        {{ end }}
+      {{ else }}
+        <p>Hi!</p>
+        {{ with .Site.Author }}<p>I’m {{ . }}.</p>{{ end }}
+        {{ with .Site.Params.description }}<p>{{ . }}</p>{{ end }}
+      {{ end }}
+    </div>
+  </div>
+{{ end }}

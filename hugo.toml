@@ -1,0 +1,32 @@
+baseURL = 'https://example.org/'
+languageCode = 'en-us'
+title = 'Spencer Callaghan'
+theme = 'hugo-bearblog'
+author = 'Spencer Callaghan'
+
+enableRobotsTXT = true
+
+disableKinds = ["taxonomy"]
+ignoreErrors = ["error-disable-taxonomy"]
+
+[permalinks]
+  blog = "/:slug/"
+
+[params]
+  description = "Personal website of Spencer Callaghan"
+  about = ["Hi, I'm Spencer. I write about brand, communications, marketing and a bunch of other stuff that comes to mind."]
+  about_photo_light = "/images/sc-logo-light.png"
+  about_photo_dark = "/images/sc-logo-dark.png"
+
+  # Social links for footer
+  mastodon = "https://mstdn.ca/@spencer"
+  bluesky = "https://bsky.app/profile/spencercallaghan.ca"
+
+[markup]
+  [markup.highlight]
+    style = 'friendly'
+    lineNos = true
+    lineNumbersInTable = false
+    codeFences = true
+  [markup.goldmark.renderer]
+    unsafe = true

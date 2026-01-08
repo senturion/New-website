@@ -1,0 +1,25 @@
+{{- $name := .Get "name" -}}
+{{- $description := .Get "description" -}}
+{{- $image := .Get "image" -}}
+{{- $link := .Get "link" -}}
+<div class="work-item">
+  {{- if $image -}}
+    <div class="work-item-media">
+      <img src="{{ $image }}" alt="{{ $name | default "Work item" }}">
+    </div>
+  {{- end -}}
+  <div class="work-item-body">
+    {{- if $name -}}
+      <p class="work-item-title">
+        {{- if $link -}}
+          <a href="{{ $link }}">{{ $name }}</a>
+        {{- else -}}
+          {{ $name }}
+        {{- end -}}
+      </p>
+    {{- end -}}
+    {{- if $description -}}
+      <p class="work-item-description">{{ $description }}</p>
+    {{- end -}}
+  </div>
+</div>

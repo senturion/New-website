@@ -1,0 +1,231 @@
+<script>
+  // Theme toggle functionality
+  const themeToggle = document.getElementById('theme-toggle');
+  const theme80sToggle = document.getElementById('theme-80s-toggle');
+  const tapeDeck = document.querySelector('.tape-deck');
+  const playBtn = document.querySelector('.play-btn');
+  const prevBtn = document.querySelector('.prev-btn');
+  const nextBtn = document.querySelector('.next-btn');
+  const volumeSlider = document.querySelector('.tape-volume-slider');
+  const trackNameEl = document.querySelector('.track-name');
+  const playIcon = document.querySelector('.play-icon');
+  const pauseIcon = document.querySelector('.pause-icon');
+  const tapeAudio = document.getElementById('tape-audio');
+  const html = document.documentElement;
+  const themeKey = 'theme';
+  const themePrevKey = 'theme-prev';
+
+  // Synthwave radio stations (streaming)
+  const stations = [
+    { name: 'NIGHTWAVE PLAZA', src: 'https://radio.plaza.one/mp3' },
+    { name: 'SYNTHWAVE RADIO', src: 'https://stream.synthwave.radio/320' },
+    { name: 'NIGHTRIDE FM', src: 'https://stream.nightride.fm/nightride.m4a' }
+  ];
+  let currentStation = 0;
+
+  // Check for saved theme preference or system preference
+  const savedTheme = localStorage.getItem(themeKey);
+  if (savedTheme) {
+    html.setAttribute('data-theme', savedTheme);
+  } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    html.setAttribute('data-theme', 'dark');
+  }
+
+  // Initialize 80s mode elements if theme is 80s
+  function init80sMode() {
+    if (html.getAttribute('data-theme') === '80s') {
+      generateStars();
+      initCursorTrail();
+    }
+  }
+
+  // Generate random stars
+  function generateStars() {
+    const starsContainer = document.querySelector('.stars');
+    if (!starsContainer || starsContainer.children.length > 0) return;
+
+    for (let i = 0; i < 50; i++) {
+      const star = document.createElement('span');
+      star.className = 'star';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 60 + '%';
+      star.style.animationDelay = Math.random() * 3 + 's';
+      star.style.animationDuration = (2 + Math.random() * 2) + 's';
+      starsContainer.appendChild(star);
+    }
+  }
+
+  // Cursor trail effect
+  function initCursorTrail() {
+    const trailContainer = document.querySelector('.cursor-trail-container');
+    if (!trailContainer) return;
+
+    const trailLength = 12;
+    const trails = [];
+
+    for (let i = 0; i < trailLength; i++) {
+      const trail = document.createElement('div');
+      trail.className = 'cursor-trail';
+      trail.style.opacity = (1 - i / trailLength) * 0.6;
+      trail.style.transform = `scale(${1 - i / trailLength * 0.5})`;
+      trailContainer.appendChild(trail);
+      trails.push({ el: trail, x: 0, y: 0 });
+    }
+
+    let mouseX = 0, mouseY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      if (html.getAttribute('data-theme') !== '80s') return;
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    function animateTrails() {
+      if (html.getAttribute('data-theme') === '80s') {
+        trails[0].x = mouseX;
+        trails[0].y = mouseY;
+
+        for (let i = 1; i < trails.length; i++) {
+          trails[i].x += (trails[i-1].x - trails[i].x) * 0.3;
+          trails[i].y += (trails[i-1].y - trails[i].y) * 0.3;
+        }
+
+        trails.forEach((trail, i) => {
+          trail.el.style.left = trail.x + 'px';
+          trail.el.style.top = trail.y + 'px';
+          trail.el.style.opacity = (1 - i / trailLength) * 0.5;
+        });
+      } else {
+        trails.forEach(trail => trail.el.style.opacity = 0);
+      }
+      requestAnimationFrame(animateTrails);
+    }
+    animateTrails();
+  }
+
+  // Toggle theme on button click
+  themeToggle.addEventListener('click', () => {
+    const currentTheme = html.getAttribute('data-theme');
+    if (currentTheme === '80s') {
+      const prevTheme = localStorage.getItem(themePrevKey) || 'light';
+      const newTheme = prevTheme === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem(themeKey, newTheme);
+      return;
+    }
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem(themeKey, newTheme);
+  });
+
+  theme80sToggle.addEventListener('click', () => {
+    const currentTheme = html.getAttribute('data-theme') || 'light';
+    if (currentTheme === '80s') {
+      const prevTheme = localStorage.getItem(themePrevKey) || 'light';
+      html.setAttribute('data-theme', prevTheme);
+      localStorage.setItem(themeKey, prevTheme);
+      return;
+    }
+    localStorage.setItem(themePrevKey, currentTheme);
+    html.setAttribute('data-theme', '80s');
+    localStorage.setItem(themeKey, '80s');
+    init80sMode();
+  });
+
+  // Tape deck functionality - Radio streaming
+  function loadStation(index) {
+    if (stations[index]) {
+      currentStation = index;
+      const wasPlaying = !tapeAudio.paused;
+      tapeAudio.src = stations[index].src;
+      if (trackNameEl) trackNameEl.textContent = stations[index].name;
+      if (wasPlaying) {
+        tapeAudio.play().catch(() => {
+          console.log('Stream playback failed - station may be unavailable');
+        });
+      }
+    }
+  }
+
+  function updatePlayButton(playing) {
+    if (playIcon && pauseIcon) {
+      playIcon.style.display = playing ? 'none' : 'inline';
+      pauseIcon.style.display = playing ? 'inline' : 'none';
+    }
+    if (playing) {
+      tapeDeck.classList.add('is-playing');
+    } else {
+      tapeDeck.classList.remove('is-playing');
+    }
+  }
+
+  if (playBtn && tapeAudio) {
+    playBtn.addEventListener('click', () => {
+      if (!tapeAudio.src || tapeAudio.src === window.location.href) {
+        loadStation(0);
+      }
+      if (tapeAudio.paused) {
+        tapeAudio.play().catch((err) => {
+          console.log('Stream playback failed:', err);
+          // Try next station if current one fails
+          const nextIndex = (currentStation + 1) % stations.length;
+          loadStation(nextIndex);
+          tapeAudio.play().catch(() => {});
+        });
+        updatePlayButton(true);
+      } else {
+        tapeAudio.pause();
+        updatePlayButton(false);
+      }
+    });
+
+    // Handle stream errors - try next station
+    tapeAudio.addEventListener('error', () => {
+      console.log('Stream error - trying next station');
+      const nextIndex = (currentStation + 1) % stations.length;
+      loadStation(nextIndex);
+    });
+  }
+
+  // Prev/Next now switch between radio stations
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      const prevIndex = (currentStation - 1 + stations.length) % stations.length;
+      loadStation(prevIndex);
+      if (!tapeAudio.paused) {
+        tapeAudio.play().catch(() => {});
+      }
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      const nextIndex = (currentStation + 1) % stations.length;
+      loadStation(nextIndex);
+      if (!tapeAudio.paused) {
+        tapeAudio.play().catch(() => {});
+      }
+    });
+  }
+
+  if (volumeSlider && tapeAudio) {
+    volumeSlider.addEventListener('input', (e) => {
+      tapeAudio.volume = e.target.value / 100;
+    });
+    // Set initial volume
+    tapeAudio.volume = volumeSlider.value / 100;
+  }
+
+  // Initialize on page load
+  init80sMode();
+
+  // Parallax effect on scroll for synthwave scene
+  window.addEventListener('scroll', () => {
+    if (html.getAttribute('data-theme') !== '80s') return;
+    const scrolled = window.pageYOffset;
+    const scene = document.querySelector('.synthwave-scene');
+    if (scene) {
+      scene.style.transform = `translateY(${scrolled * 0.3}px)`;
+    }
+  });
+</script>
