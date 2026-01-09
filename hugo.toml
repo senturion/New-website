@@ -23,6 +23,7 @@ summaryLength = 40
   # Social links for footer
   mastodon = "https://mstdn.ca/@spencer"
   bluesky = "https://bsky.app/profile/spencercallaghan.ca"
+  linkedin = "https://www.linkedin.com/in/spencercallaghan/"
 
 [markup]
   [markup.highlight]
