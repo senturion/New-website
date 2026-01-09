@@ -7,7 +7,7 @@
     <div class="archive-list">
       {{- range .Pages }}
         <div class="archive-item">
-          <a class="post-heading" href="{{ .Permalink }}">
+          <a class="post-heading" href="{{ .RelPermalink }}">
             <span class="post-title">{{ .Title }}</span>
             <span class="post-date-inline">{{ .Date.Format "01/02" }}</span>
           </a>
