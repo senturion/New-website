@@ -8,6 +8,8 @@ enableRobotsTXT = true
 
 disableKinds = ["taxonomy"]
 ignoreErrors = ["error-disable-taxonomy"]
+preserveTaxonomyNames = true
+summaryLength = 40
 
 [permalinks]
   blog = "/:slug/"

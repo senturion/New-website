@@ -1,0 +1,14 @@
+{{- $pages := where .Site.RegularPages "Section" "blog" -}}
+{{- range $pages.GroupByDate "2006" }}
+  <h2>{{ .Key }}</h2>
+  <div class="archive-list">
+    {{- range .Pages }}
+      <div class="archive-item">
+        <a class="post-heading" href="{{ .Permalink }}">
+          <span class="post-title">{{ .Title }}</span>
+          <span class="post-date-inline">{{ .Date.Format "01/02" }}</span>
+        </a>
+      </div>
+    {{- end }}
+  </div>
+{{- end }}

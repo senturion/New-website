@@ -1,0 +1,13 @@
+{{ define "main" }}
+<content>
+  {{ .Content }}
+  {{- $posts := where .Site.RegularPages "Section" "blog" -}}
+  {{- range $posts.ByDate.Reverse }}
+    <a class="post-heading" href="{{ .Permalink }}">
+      <span class="post-title">{{ .Title }}</span>
+      <span class="post-date-inline">{{ .Date.Format "01/02" }}</span>
+    </a>
+    {{ with .Summary }}<p>{{ . }}</p>{{ end }}
+  {{- end }}
+</content>
+{{ end }}

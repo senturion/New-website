@@ -23,8 +23,8 @@
   {{ if not .Data.Singular }}
   <small>
     <div>
-      {{ range .Site.Taxonomies.tags }}
-      <a href="{{ .Page.Permalink }}">#{{ .Page.Title }}</a>&nbsp;
+      {{ range $term, $pages := .Site.Taxonomies.tags }}
+      <a class="tag-link" href="{{ (printf "tags/%s/" (urlize $term)) | relURL }}"><span class="tag-hash">#</span><span class="tag-text">{{ $term }}</span></a>&nbsp;
       {{ end }}
     </div>
   </small>

@@ -1,4 +1,4 @@
-<a href="{{ "" | relURL }}">Home</a>
+<a href="{{ "" | relURL }}" class="{{ if .IsHome }}is-active{{ end }}">Home</a>
 {{ range .Site.Menus.main }}
-  <a href="{{ .URL }}">{{ .Name }}</a>
+  <a href="{{ .URL }}" class="{{ if or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }}is-active{{ end }}">{{ .Name }}</a>
 {{ end }}

@@ -39,6 +39,41 @@
     }
   }
 
+  function stopTape() {
+    if (tapeAudio && !tapeAudio.paused) {
+      tapeAudio.pause();
+    }
+    if (tapeDeck) {
+      tapeDeck.classList.remove('is-playing');
+    }
+  }
+
+  function startTape() {
+    if (!tapeAudio) return;
+    if (!tapeAudio.src && stations[currentStation]) {
+      tapeAudio.src = stations[currentStation].src;
+      if (trackNameEl) trackNameEl.textContent = stations[currentStation].name;
+    }
+    if (tapeAudio.paused) {
+      tapeAudio.play().catch(() => {
+        console.log('Stream playback failed - user gesture required');
+      });
+      if (tapeDeck) {
+        tapeDeck.classList.add('is-playing');
+      }
+    }
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') {
+      stopTape();
+    }
+  });
+
+  window.addEventListener('blur', () => {
+    stopTape();
+  });
+
   // Generate random stars
   function generateStars() {
     const starsContainer = document.querySelector('.stars');
@@ -111,6 +146,7 @@
       const newTheme = prevTheme === 'dark' ? 'light' : 'dark';
       html.setAttribute('data-theme', newTheme);
       localStorage.setItem(themeKey, newTheme);
+      stopTape();
       return;
     }
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -124,12 +160,14 @@
       const prevTheme = localStorage.getItem(themePrevKey) || 'light';
       html.setAttribute('data-theme', prevTheme);
       localStorage.setItem(themeKey, prevTheme);
+      stopTape();
       return;
     }
     localStorage.setItem(themePrevKey, currentTheme);
     html.setAttribute('data-theme', '80s');
     localStorage.setItem(themeKey, '80s');
     init80sMode();
+    startTape();
   });
 
   // Tape deck functionality - Radio streaming
@@ -228,4 +266,41 @@
       scene.style.transform = `translateY(${scrolled * 0.3}px)`;
     }
   });
+
+  // Footer typing animation
+  const typingTarget = document.querySelector('.typing-words');
+  if (typingTarget) {
+    const words = (typingTarget.dataset.words || '').split(',').map(w => w.trim()).filter(Boolean);
+    let wordIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+
+    function tick() {
+      if (!words.length) return;
+      const current = words[wordIndex];
+      const nextText = isDeleting
+        ? current.slice(0, Math.max(charIndex - 1, 0))
+        : current.slice(0, charIndex + 1);
+
+      typingTarget.textContent = nextText;
+
+      if (!isDeleting && nextText === current) {
+        isDeleting = true;
+        setTimeout(tick, 1200);
+        return;
+      }
+
+      if (isDeleting && nextText === '') {
+        isDeleting = false;
+        wordIndex = (wordIndex + 1) % words.length;
+        setTimeout(tick, 300);
+        return;
+      }
+
+      charIndex = isDeleting ? charIndex - 1 : charIndex + 1;
+      setTimeout(tick, isDeleting ? 80 : 120);
+    }
+
+    tick();
+  }
 </script>
