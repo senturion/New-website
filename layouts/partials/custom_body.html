@@ -2,15 +2,17 @@
   // Theme toggle functionality
   const themeToggle = document.getElementById('theme-toggle');
   const theme80sToggle = document.getElementById('theme-80s-toggle');
-  const tapeDeck = document.querySelector('.tape-deck');
-  const playBtn = document.querySelector('.play-btn');
-  const prevBtn = document.querySelector('.prev-btn');
-  const nextBtn = document.querySelector('.next-btn');
-  const volumeSlider = document.querySelector('.tape-volume-slider');
-  const trackNameEl = document.querySelector('.track-name');
-  const playIcon = document.querySelector('.play-icon');
-  const pauseIcon = document.querySelector('.pause-icon');
-  const tapeAudio = document.getElementById('tape-audio');
+  let tapeDeck = null;
+  let playBtn = null;
+  let prevBtn = null;
+  let nextBtn = null;
+  let volumeSlider = null;
+  let trackNameEl = null;
+  let playIcon = null;
+  let pauseIcon = null;
+  let tapeAudio = null;
+  let eightiesLayer = null;
+  let cursorTrailRAF = null;
   const html = document.documentElement;
   const themeKey = 'theme';
   const themePrevKey = 'theme-prev';
@@ -23,6 +25,144 @@
   ];
   let currentStation = 0;
 
+  function ensure80sFonts() {
+    if (document.getElementById('theme-80s-fonts')) return;
+    const link = document.createElement('link');
+    link.id = 'theme-80s-fonts';
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Outfit:wght@700;800;900&family=Bangers&family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap';
+    document.head.appendChild(link);
+  }
+
+  function ensure80sCss() {
+    if (document.getElementById('theme-80s-css')) return;
+    const link = document.createElement('link');
+    link.id = 'theme-80s-css';
+    link.rel = 'stylesheet';
+    link.href = '/css/80s.css';
+    document.head.appendChild(link);
+  }
+
+  function ensure80sLayer() {
+    if (eightiesLayer) return;
+    const layer = document.createElement('div');
+    layer.id = 'eighties-layer';
+    layer.innerHTML = `
+      <div class="maxi-shapes" aria-hidden="true">
+        <span class="shape shape-circle shape-c1"></span>
+        <span class="shape shape-circle shape-c2"></span>
+        <span class="shape shape-circle shape-c3"></span>
+        <span class="shape shape-circle shape-c4"></span>
+        <span class="shape shape-circle shape-c5"></span>
+        <span class="shape shape-tri shape-t1"></span>
+        <span class="shape shape-tri shape-t2"></span>
+        <span class="shape shape-tri shape-t3"></span>
+        <span class="shape shape-tri shape-t4"></span>
+        <span class="shape shape-tri shape-t5"></span>
+        <span class="shape shape-zig shape-z1"></span>
+        <span class="shape shape-zig shape-z2"></span>
+        <span class="shape shape-zig shape-z3"></span>
+        <span class="shape shape-zig shape-z4"></span>
+        <span class="shape shape-zig shape-z5"></span>
+        <span class="shape shape-confetti shape-confetti-1"></span>
+        <span class="shape shape-confetti shape-confetti-2"></span>
+        <span class="shape shape-confetti shape-confetti-3"></span>
+        <span class="shape shape-confetti shape-confetti-4"></span>
+        <span class="shape shape-squiggle shape-squiggle-1"></span>
+        <span class="shape shape-squiggle shape-squiggle-2"></span>
+        <span class="shape shape-squiggle shape-squiggle-3"></span>
+      </div>
+      <div class="synthwave-scene" aria-hidden="true">
+        <div class="horizon-glow"></div>
+        <div class="retro-sun"></div>
+        <div class="palm-tree palm-tree-left">
+          <div class="palm-frond"></div>
+          <div class="palm-frond"></div>
+          <div class="palm-frond"></div>
+          <div class="palm-frond"></div>
+          <div class="palm-frond"></div>
+          <div class="palm-trunk"></div>
+        </div>
+        <div class="palm-tree palm-tree-right">
+          <div class="palm-frond"></div>
+          <div class="palm-frond"></div>
+          <div class="palm-frond"></div>
+          <div class="palm-frond"></div>
+          <div class="palm-frond"></div>
+          <div class="palm-trunk"></div>
+        </div>
+        <div class="neon-grid"></div>
+      </div>
+      <div class="stars" aria-hidden="true"></div>
+      <div class="crt-overlay" aria-hidden="true"></div>
+      <div class="vhs-glitch" aria-hidden="true"></div>
+      <div class="cursor-trail-container" aria-hidden="true"></div>
+      <div class="tape-deck" aria-hidden="true">
+        <div class="tape-window">
+          <div class="tape-vu-meter">
+            <span class="vu-bar"></span><span class="vu-bar"></span><span class="vu-bar"></span><span class="vu-bar"></span>
+            <span class="vu-bar"></span><span class="vu-bar"></span><span class="vu-bar"></span><span class="vu-bar"></span>
+          </div>
+          <span class="tape-reel reel-left"></span>
+          <span class="tape-reel reel-right"></span>
+          <span class="tape-tape"></span>
+        </div>
+        <div class="tape-track-info">
+          <span class="track-name">NIGHTWAVE PLAZA</span>
+        </div>
+        <div class="tape-controls">
+          <button class="tape-button prev-btn" type="button" aria-label="Previous track">
+            <i class="bi bi-skip-backward-fill"></i>
+          </button>
+          <button class="tape-button play-btn" type="button" aria-label="Play/Pause">
+            <i class="bi bi-play-fill play-icon"></i>
+            <i class="bi bi-pause-fill pause-icon" style="display:none;"></i>
+          </button>
+          <button class="tape-button next-btn" type="button" aria-label="Next track">
+            <i class="bi bi-skip-forward-fill"></i>
+          </button>
+        </div>
+        <div class="tape-volume">
+          <span class="tape-volume-label">VOL</span>
+          <input type="range" class="tape-volume-slider" min="0" max="100" value="70" aria-label="Volume">
+        </div>
+        <audio id="tape-audio" preload="none"></audio>
+      </div>
+    `;
+    document.body.appendChild(layer);
+    eightiesLayer = layer;
+
+    tapeDeck = layer.querySelector('.tape-deck');
+    playBtn = layer.querySelector('.play-btn');
+    prevBtn = layer.querySelector('.prev-btn');
+    nextBtn = layer.querySelector('.next-btn');
+    volumeSlider = layer.querySelector('.tape-volume-slider');
+    trackNameEl = layer.querySelector('.track-name');
+    playIcon = layer.querySelector('.play-icon');
+    pauseIcon = layer.querySelector('.pause-icon');
+    tapeAudio = layer.querySelector('#tape-audio');
+  }
+
+  function teardown80sLayer() {
+    if (cursorTrailRAF) {
+      cancelAnimationFrame(cursorTrailRAF);
+      cursorTrailRAF = null;
+    }
+    if (eightiesLayer) {
+      eightiesLayer.remove();
+      eightiesLayer = null;
+    }
+    tapeDeck = null;
+    playBtn = null;
+    prevBtn = null;
+    nextBtn = null;
+    volumeSlider = null;
+    trackNameEl = null;
+    playIcon = null;
+    pauseIcon = null;
+    tapeAudio = null;
+  }
+
   // Check for saved theme preference or system preference
   const savedTheme = localStorage.getItem(themeKey);
   if (savedTheme) {
@@ -34,8 +174,12 @@
   // Initialize 80s mode elements if theme is 80s
   function init80sMode() {
     if (html.getAttribute('data-theme') === '80s') {
+      ensure80sCss();
+      ensure80sFonts();
+      ensure80sLayer();
       generateStars();
       initCursorTrail();
+      bindTapeControls();
     }
   }
 
@@ -46,6 +190,16 @@
     if (tapeDeck) {
       tapeDeck.classList.remove('is-playing');
     }
+  }
+
+  function unload80sFonts() {
+    const link = document.getElementById('theme-80s-fonts');
+    if (link) link.remove();
+  }
+
+  function unload80sCss() {
+    const link = document.getElementById('theme-80s-css');
+    if (link) link.remove();
   }
 
   function startTape() {
@@ -76,7 +230,7 @@
 
   // Generate random stars
   function generateStars() {
-    const starsContainer = document.querySelector('.stars');
+    const starsContainer = eightiesLayer ? eightiesLayer.querySelector('.stars') : null;
     if (!starsContainer || starsContainer.children.length > 0) return;
 
     for (let i = 0; i < 50; i++) {
@@ -92,7 +246,7 @@
 
   // Cursor trail effect
   function initCursorTrail() {
-    const trailContainer = document.querySelector('.cursor-trail-container');
+    const trailContainer = eightiesLayer ? eightiesLayer.querySelector('.cursor-trail-container') : null;
     if (!trailContainer) return;
 
     const trailLength = 12;
@@ -133,7 +287,7 @@
       } else {
         trails.forEach(trail => trail.el.style.opacity = 0);
       }
-      requestAnimationFrame(animateTrails);
+      cursorTrailRAF = requestAnimationFrame(animateTrails);
     }
     animateTrails();
   }
@@ -147,6 +301,9 @@
       html.setAttribute('data-theme', newTheme);
       localStorage.setItem(themeKey, newTheme);
       stopTape();
+      teardown80sLayer();
+      unload80sFonts();
+      unload80sCss();
       return;
     }
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -161,6 +318,9 @@
       html.setAttribute('data-theme', prevTheme);
       localStorage.setItem(themeKey, prevTheme);
       stopTape();
+      teardown80sLayer();
+      unload80sFonts();
+      unload80sCss();
       return;
     }
     localStorage.setItem(themePrevKey, currentTheme);
@@ -197,61 +357,62 @@
     }
   }
 
-  if (playBtn && tapeAudio) {
-    playBtn.addEventListener('click', () => {
-      if (!tapeAudio.src || tapeAudio.src === window.location.href) {
-        loadStation(0);
-      }
-      if (tapeAudio.paused) {
-        tapeAudio.play().catch((err) => {
-          console.log('Stream playback failed:', err);
-          // Try next station if current one fails
-          const nextIndex = (currentStation + 1) % stations.length;
-          loadStation(nextIndex);
+  function bindTapeControls() {
+    if (!tapeDeck || tapeDeck.dataset.bound === 'true') return;
+    tapeDeck.dataset.bound = 'true';
+
+    if (playBtn && tapeAudio) {
+      playBtn.addEventListener('click', () => {
+        if (!tapeAudio.src || tapeAudio.src === window.location.href) {
+          loadStation(0);
+        }
+        if (tapeAudio.paused) {
+          tapeAudio.play().catch((err) => {
+            console.log('Stream playback failed:', err);
+            const nextIndex = (currentStation + 1) % stations.length;
+            loadStation(nextIndex);
+            tapeAudio.play().catch(() => {});
+          });
+          updatePlayButton(true);
+        } else {
+          tapeAudio.pause();
+          updatePlayButton(false);
+        }
+      });
+
+      tapeAudio.addEventListener('error', () => {
+        console.log('Stream error - trying next station');
+        const nextIndex = (currentStation + 1) % stations.length;
+        loadStation(nextIndex);
+      });
+    }
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        const prevIndex = (currentStation - 1 + stations.length) % stations.length;
+        loadStation(prevIndex);
+        if (tapeAudio && !tapeAudio.paused) {
           tapeAudio.play().catch(() => {});
-        });
-        updatePlayButton(true);
-      } else {
-        tapeAudio.pause();
-        updatePlayButton(false);
-      }
-    });
+        }
+      });
+    }
 
-    // Handle stream errors - try next station
-    tapeAudio.addEventListener('error', () => {
-      console.log('Stream error - trying next station');
-      const nextIndex = (currentStation + 1) % stations.length;
-      loadStation(nextIndex);
-    });
-  }
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        const nextIndex = (currentStation + 1) % stations.length;
+        loadStation(nextIndex);
+        if (tapeAudio && !tapeAudio.paused) {
+          tapeAudio.play().catch(() => {});
+        }
+      });
+    }
 
-  // Prev/Next now switch between radio stations
-  if (prevBtn) {
-    prevBtn.addEventListener('click', () => {
-      const prevIndex = (currentStation - 1 + stations.length) % stations.length;
-      loadStation(prevIndex);
-      if (!tapeAudio.paused) {
-        tapeAudio.play().catch(() => {});
-      }
-    });
-  }
-
-  if (nextBtn) {
-    nextBtn.addEventListener('click', () => {
-      const nextIndex = (currentStation + 1) % stations.length;
-      loadStation(nextIndex);
-      if (!tapeAudio.paused) {
-        tapeAudio.play().catch(() => {});
-      }
-    });
-  }
-
-  if (volumeSlider && tapeAudio) {
-    volumeSlider.addEventListener('input', (e) => {
-      tapeAudio.volume = e.target.value / 100;
-    });
-    // Set initial volume
-    tapeAudio.volume = volumeSlider.value / 100;
+    if (volumeSlider && tapeAudio) {
+      volumeSlider.addEventListener('input', (e) => {
+        tapeAudio.volume = e.target.value / 100;
+      });
+      tapeAudio.volume = volumeSlider.value / 100;
+    }
   }
 
   // Initialize on page load
