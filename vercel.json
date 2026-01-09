@@ -4,7 +4,10 @@
       "HUGO_VERSION": "0.139.0"
     }
   },
-  "buildCommand": "git submodule update --init --recursive && hugo --gc --minify",
+  "buildCommand": "hugo --gc --minify",
   "outputDirectory": "public",
-  "framework": "hugo"
+  "framework": "hugo",
+  "git": {
+    "submodules": true
+  }
 }
